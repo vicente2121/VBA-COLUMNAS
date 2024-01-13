@@ -1,0 +1,45 @@
+Sub AnalizarColumnas()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("NombreDeTuHoja") ' Cambia al nombre de tu hoja
+
+    Dim col As Range
+    Dim cell As Range
+    Dim maxLen As Integer
+    Dim dataType As String
+    Dim i As Integer
+    Dim cellValue As String
+
+    For Each col In ws.UsedRange.Columns
+        maxLen = 0
+        dataType = "Cadena"
+        
+        ' Reemplazar espacios en el nombre de la columna
+        col.Cells(1, 1).Value = Replace(col.Cells(1, 1).Value, " ", "_")
+        
+        ' Determinar el tipo de dato y la longitud máxima para cadenas
+        For Each cell In col.Cells
+            If cell.Row > 1 Then ' Ignorar la fila del encabezado
+                cellValue = cell.Text ' Usar Text para mantener el formato original
+
+                ' Verificar si el valor es una fecha
+                If IsDate(cellValue) Then
+                    dataType = "Fecha"
+                ElseIf IsNumeric(Replace(cellValue, ",", ".")) Then
+                    If InStr(cellValue, ",") > 0 Then
+                        dataType = "Float"
+                    Else
+                        dataType = "Entero"
+                    End If
+                End If
+
+                If dataType = "Cadena" Then
+                    i = Len(cell.Text)
+                    If i > maxLen Then maxLen = i
+                End If
+            End If
+        Next cell
+
+        ' Imprimir los resultados en la ventana inmediata
+        Debug.Print "Columna: " & col.Cells(1, 1).Value & "; Tipo: " & dataType & "; MaxLen: " & maxLen
+    Next col
+End Sub
